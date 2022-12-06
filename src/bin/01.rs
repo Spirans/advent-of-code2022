@@ -25,6 +25,12 @@ pub fn part_two(input: &str) -> Option<u32> {
             heap.pop();
         }
     }
+    if local_sum > 0 {
+        heap.push(Reverse(local_sum));
+        if heap.len() > 3 {
+            heap.pop();
+        }
+    }
     Some(heap.iter().fold(0, |acc, Reverse(i)| acc + i))
 }
 
@@ -41,12 +47,12 @@ mod tests {
     #[test]
     fn test_part_one() {
         let input = advent_of_code::read_file("examples", 1);
-        assert_eq!(part_one(&input), None);
+        assert_eq!(part_one(&input), Some(24000));
     }
 
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 1);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(45000));
     }
 }

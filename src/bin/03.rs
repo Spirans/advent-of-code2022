@@ -5,19 +5,10 @@ use std::{
 
 use once_cell::sync::Lazy;
 
-const LOWER_SCORE: RangeInclusive<u32> = 1..=26;
-const UPPER_SCORE: RangeInclusive<u32> = 27..=52;
 static MAPPING: Lazy<HashMap<char, u32>> = Lazy::new(build_mapping);
 
 fn build_mapping() -> HashMap<char, u32> {
-    let upper: Vec<char> = (65..=90).map(|i| char::from_u32(i).unwrap()).collect();
-    let upper_mapping: HashMap<char, u32> = upper.into_iter().zip(UPPER_SCORE).collect();
-    let lower: Vec<char> = (97..=122).map(|i| char::from_u32(i).unwrap()).collect();
-    lower
-        .into_iter()
-        .zip(LOWER_SCORE)
-        .chain(upper_mapping)
-        .collect()
+    ('a'..='z').chain('A'..='Z').zip(1..=52).collect()
 }
 
 fn calculate(s: String) -> u32 {
@@ -82,12 +73,12 @@ mod tests {
     #[test]
     fn test_part_one() {
         let input = advent_of_code::read_file("examples", 3);
-        assert_eq!(part_one(&input), None);
+        assert_eq!(part_one(&input), Some(157));
     }
 
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 3);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(70));
     }
 }
