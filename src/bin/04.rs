@@ -4,11 +4,11 @@ struct Range {
 }
 
 impl Range {
-    fn fully_overlap(&self, rhs: &Range) -> bool {
+    fn include(&self, rhs: &Range) -> bool {
         rhs.left_bound >= self.left_bound && rhs.right_bound <= self.right_bound
     }
 
-    fn partially_overlap(&self, rhs: &Range) -> bool {
+    fn intersect(&self, rhs: &Range) -> bool {
         (rhs.left_bound >= self.left_bound && rhs.left_bound <= self.right_bound)
             || (rhs.right_bound >= self.left_bound && rhs.right_bound <= self.right_bound)
     }
@@ -28,18 +28,13 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(
         input
             .lines()
-            .map(|line| {
+            .filter(|line| {
                 let splitted: Vec<_> = line.split(",").collect();
                 let left_range = Range::from(splitted[0]);
                 let right_range = Range::from(splitted[1]);
-                if left_range.fully_overlap(&right_range) || right_range.fully_overlap(&left_range)
-                {
-                    1
-                } else {
-                    0
-                }
+                left_range.include(&right_range) || right_range.include(&left_range)
             })
-            .sum(),
+            .count() as u32,
     )
 }
 
@@ -47,19 +42,13 @@ pub fn part_two(input: &str) -> Option<u32> {
     Some(
         input
             .lines()
-            .map(|line| {
+            .filter(|line| {
                 let splitted: Vec<_> = line.split(",").collect();
                 let left_range = Range::from(splitted[0]);
                 let right_range = Range::from(splitted[1]);
-                if left_range.partially_overlap(&right_range)
-                    || right_range.partially_overlap(&left_range)
-                {
-                    1
-                } else {
-                    0
-                }
+                left_range.intersect(&right_range) || right_range.intersect(&left_range)
             })
-            .sum(),
+            .count() as u32,
     )
 }
 
