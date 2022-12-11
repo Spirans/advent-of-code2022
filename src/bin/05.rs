@@ -101,8 +101,53 @@ pub fn part_one(input: &str) -> Option<String> {
     Some(res.iter().collect())
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    None
+pub fn part_two(input: &str) -> Option<String> {
+    let mut raw_buckets: HashMap<u32, VecDeque<char>> = HashMap::new();
+    let mut buckets: HashMap<u32, Vec<char>> = HashMap::new();
+
+    let mut lines_iterator = input.lines();
+    let mut col_numbers = Vec::new();
+    while let Some(line) = lines_iterator.next() {
+        let (remaining, parsed) = parse_line(line).ok()?;
+        if remaining == line {
+            let (_, numbers) = parse_numbers(line).ok()?;
+            col_numbers = numbers.clone();
+            for (index, number) in numbers.into_iter().enumerate() {
+                if let Some(v) = raw_buckets.remove(&(index as u32)) {
+                    buckets.insert(number, Vec::from(v));
+                }
+            }
+            break;
+        } else {
+            for (index, ch) in parsed.into_iter().enumerate() {
+                if let Some(v) = ch {
+                    raw_buckets
+                        .entry(index as u32)
+                        .and_modify(|e| e.push_front(v))
+                        .or_insert(VecDeque::from([v]));
+                }
+            }
+        }
+    }
+    lines_iterator.next(); // empty line
+
+    while let Some(line) = lines_iterator.next() {
+        let (_, mv) = parse_moves(line).ok()?;
+        let mut cur_vec = VecDeque::new();
+        for _ in 0..mv.count {
+            let v = buckets.get_mut(&mv.from).unwrap().pop().unwrap();
+            cur_vec.push_front(v);
+        }
+        buckets.get_mut(&mv.to).unwrap().extend(cur_vec);
+    }
+
+    let mut res: Vec<char> = Vec::new();
+    for col in col_numbers {
+        let cargo = buckets.get_mut(&col).unwrap().pop().unwrap();
+        res.push(cargo);
+    }
+
+    Some(res.iter().collect())
 }
 
 fn main() {
@@ -124,7 +169,7 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 5);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some("MCD".to_string()));
     }
 
     #[test]
