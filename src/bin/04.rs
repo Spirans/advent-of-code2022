@@ -16,7 +16,7 @@ impl Range {
 
 impl From<&str> for Range {
     fn from(line: &str) -> Self {
-        let pair: Vec<_> = line.split("-").collect();
+        let pair: Vec<_> = line.split('-').collect();
         Self {
             left_bound: pair[0].parse::<u32>().unwrap(),
             right_bound: pair[1].parse::<u32>().unwrap(),
@@ -29,7 +29,7 @@ pub fn part_one(input: &str) -> Option<u32> {
         input
             .lines()
             .filter(|line| {
-                let splitted: Vec<_> = line.split(",").collect();
+                let splitted: Vec<_> = line.split(',').collect();
                 let left_range = Range::from(splitted[0]);
                 let right_range = Range::from(splitted[1]);
                 left_range.include(&right_range) || right_range.include(&left_range)
@@ -43,7 +43,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         input
             .lines()
             .filter(|line| {
-                let splitted: Vec<_> = line.split(",").collect();
+                let splitted: Vec<_> = line.split(',').collect();
                 let left_range = Range::from(splitted[0]);
                 let right_range = Range::from(splitted[1]);
                 left_range.intersect(&right_range) || right_range.intersect(&left_range)

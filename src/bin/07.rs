@@ -4,9 +4,8 @@ use nom::{
     branch::alt,
     bytes::complete::tag,
     character::complete::{alpha1, line_ending, newline, not_line_ending, space1, u32 as nom_u32},
-    combinator::{map, opt},
-    multi::{fold_many1, many1},
-    sequence::{delimited, pair, preceded, separated_pair, terminated},
+    multi::many1,
+    sequence::{delimited, pair, preceded, terminated},
     IResult,
 };
 
@@ -14,7 +13,6 @@ use nom::{
 struct TreeNode {
     children: HashMap<String, Rc<RefCell<TreeNode>>>,
     n_type: NodeType,
-    val: u32,
 }
 
 impl TreeNode {
@@ -22,12 +20,7 @@ impl TreeNode {
         Self {
             children: HashMap::new(),
             n_type: t,
-            val: 0,
         }
-    }
-
-    fn add_val(&mut self, v: u32) {
-        self.val += v
     }
 }
 
@@ -54,7 +47,7 @@ impl From<&str> for CD {
     }
 }
 
-const cmd_sign: &str = "$";
+const CMD_SIGN: &str = "$";
 
 #[derive(Debug, PartialEq)]
 enum Action {
@@ -80,21 +73,20 @@ fn parse_file(input: &str) -> IResult<&str, Action> {
         terminated(nom_u32, space1),
         terminated(not_line_ending, newline),
     )(input)
-    .and_then(|(rem, (size, name))| Ok((rem, Action::Listing(LS::File(size, name.to_string())))))
+    .map(|(rem, (size, name))| (rem, Action::Listing(LS::File(size, name.to_string()))))
 }
 
 fn parse_dir(input: &str) -> IResult<&str, Action> {
     delimited(tag("dir"), preceded(space1, alpha1), newline)(input)
-        .and_then(|(rem, name)| Ok((rem, Action::Listing(LS::Dir(name.to_string())))))
+        .map(|(rem, name)| (rem, Action::Listing(LS::Dir(name.to_string()))))
 }
 
 fn parse_ls(input: &str) -> IResult<&str, Action> {
-    delimited(parse_cmd_prefix, tag("ls"), newline)(input)
-        .and_then(|(rem, _)| Ok((rem, Action::LSCommand)))
+    delimited(parse_cmd_prefix, tag("ls"), newline)(input).map(|(rem, _)| (rem, Action::LSCommand))
 }
 
 fn parse_cmd_prefix(input: &str) -> IResult<&str, &str> {
-    terminated(tag(cmd_sign), space1)(input)
+    terminated(tag(CMD_SIGN), space1)(input)
 }
 
 fn parse_cd(input: &str) -> IResult<&str, Action> {
@@ -105,7 +97,7 @@ fn parse_cd(input: &str) -> IResult<&str, Action> {
         ),
         line_ending,
     )(input)
-    .and_then(|(rem, cd)| Ok((rem, Action::DirChange(cd.into()))))
+    .map(|(rem, cd)| (rem, Action::DirChange(cd.into())))
 }
 
 fn parse(input: &str) -> IResult<&str, Vec<Action>> {
@@ -268,7 +260,7 @@ mod tests {
 
     #[test]
     fn test_parse_cmd_prefix() {
-        assert_eq!(parse_cmd_prefix("$ "), Ok(("", cmd_sign)))
+        assert_eq!(parse_cmd_prefix("$ "), Ok(("", CMD_SIGN)))
     }
 
     #[test]

@@ -24,7 +24,7 @@ impl Move {
 }
 
 fn parse_char(input: &str) -> IResult<&str, Option<char>> {
-    map(delimited(tag("["), anychar, tag("]")), |ch| Some(ch))(input)
+    map(delimited(tag("["), anychar, tag("]")), Some)(input)
 }
 
 fn parse_triple_spaces(input: &str) -> IResult<&str, Option<char>> {
@@ -60,7 +60,7 @@ pub fn part_one(input: &str) -> Option<String> {
 
     let mut lines_iterator = input.lines();
     let mut col_numbers = Vec::new();
-    while let Some(line) = lines_iterator.next() {
+    for line in lines_iterator.by_ref() {
         let (remaining, parsed) = parse_line(line).ok()?;
         if remaining == line {
             let (_, numbers) = parse_numbers(line).ok()?;
@@ -77,14 +77,14 @@ pub fn part_one(input: &str) -> Option<String> {
                     raw_buckets
                         .entry(index as u32)
                         .and_modify(|e| e.push_front(v))
-                        .or_insert(VecDeque::from([v]));
+                        .or_insert_with(|| VecDeque::from([v]));
                 }
             }
         }
     }
     lines_iterator.next(); // empty line
 
-    while let Some(line) = lines_iterator.next() {
+    for line in lines_iterator {
         let (_, mv) = parse_moves(line).ok()?;
         for _ in 0..mv.count {
             let v = buckets.get_mut(&mv.from).unwrap().pop().unwrap();
@@ -107,7 +107,7 @@ pub fn part_two(input: &str) -> Option<String> {
 
     let mut lines_iterator = input.lines();
     let mut col_numbers = Vec::new();
-    while let Some(line) = lines_iterator.next() {
+    for line in lines_iterator.by_ref() {
         let (remaining, parsed) = parse_line(line).ok()?;
         if remaining == line {
             let (_, numbers) = parse_numbers(line).ok()?;
@@ -124,14 +124,14 @@ pub fn part_two(input: &str) -> Option<String> {
                     raw_buckets
                         .entry(index as u32)
                         .and_modify(|e| e.push_front(v))
-                        .or_insert(VecDeque::from([v]));
+                        .or_insert_with(|| VecDeque::from([v]));
                 }
             }
         }
     }
     lines_iterator.next(); // empty line
 
-    while let Some(line) = lines_iterator.next() {
+    for line in lines_iterator {
         let (_, mv) = parse_moves(line).ok()?;
         let mut cur_vec = VecDeque::new();
         for _ in 0..mv.count {

@@ -52,14 +52,7 @@ impl PartialOrd<RightSide> for LeftSide {
 
 impl std::cmp::PartialEq<RightSide> for LeftSide {
     fn eq(&self, other: &RightSide) -> bool {
-        match self.partial_cmp(other) {
-            Some(Ordering::Equal) => true,
-            _ => false,
-        }
-    }
-
-    fn ne(&self, other: &RightSide) -> bool {
-        !self.eq(other)
+        matches!(self.partial_cmp(other), Some(Ordering::Equal))
     }
 }
 
@@ -71,7 +64,7 @@ enum RightSide {
 }
 
 impl RightSide {
-    fn to_point(&self) -> u32 {
+    fn to_point(self) -> u32 {
         match self {
             RightSide::X => 1,
             RightSide::Y => 2,
@@ -109,14 +102,7 @@ impl PartialOrd<LeftSide> for RightSide {
 
 impl std::cmp::PartialEq<LeftSide> for RightSide {
     fn eq(&self, other: &LeftSide) -> bool {
-        match self.partial_cmp(other) {
-            Some(Ordering::Equal) => true,
-            _ => false,
-        }
-    }
-
-    fn ne(&self, other: &LeftSide) -> bool {
-        !self.eq(other)
+        matches!(self.partial_cmp(other), Some(Ordering::Equal))
     }
 }
 
@@ -147,7 +133,7 @@ impl Game {
 pub fn part_one(input: &str) -> Option<u32> {
     let mut game = Game::new();
     for line in input.lines() {
-        let pair: Vec<_> = line.split(" ").collect();
+        let pair: Vec<_> = line.split(' ').collect();
         let left_side = String::from(pair[0]);
         let right_side = String::from(pair[1]);
         game.round(left_side.into(), right_side.into())
@@ -158,7 +144,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let mut game = Game::new();
     for line in input.lines() {
-        let pair: Vec<_> = line.split(" ").collect();
+        let pair: Vec<_> = line.split(' ').collect();
         let left_side = String::from(pair[0]);
         let right_side = String::from(pair[1]);
         let left: LeftSide = left_side.into();
