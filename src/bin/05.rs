@@ -3,7 +3,7 @@ use std::collections::{HashMap, VecDeque};
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{anychar, digit1, space0, space1, u32 as nom_u32},
+    character::complete::{anychar, digit1, space1, u32 as nom_u32},
     combinator::{map, map_res},
     multi::separated_list0,
     sequence::{delimited, tuple},
