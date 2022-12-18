@@ -14,6 +14,7 @@ fn parse_input(input: &str) -> IResult<&str, Vec<Vec<u8>>> {
     ))(input)
 }
 
+#[derive(Clone, PartialEq)]
 enum Direction {
     Up,
     Down,
@@ -21,21 +22,22 @@ enum Direction {
     Right,
 }
 
-fn is_out_of_bounds(table: &Vec<Vec<u8>>, row: usize, col: usize) -> bool {
-    row >= table.len() || col >= table[row].len()
-}
-
 fn backtrack_visible(
     table: &Vec<Vec<u8>>,
+    visibility_table: &Vec<Vec<(bool, Option<&Direction>)>>,
     started_row: usize,
     started_col: usize,
     row: usize,
     col: usize,
     direction: &Direction,
 ) -> bool {
-    if is_out_of_bounds(table, row, col) {
+    let (visible, prev_direction) = visibility_table[row][col];
+    if visible
+        && table[started_row][started_col] > table[row][col]
+        && prev_direction.map_or(false, |v| v == direction)
+    {
         return true;
-    };
+    }
 
     if (row != started_row || col != started_col)
         && table[row][col] >= table[started_row][started_col]
@@ -50,12 +52,17 @@ fn backtrack_visible(
         Direction::Left => (Some(row), col.checked_sub(1)),
     };
 
-    if new_row.is_none() || new_col.is_none() {
+    if new_row.is_none()
+        || new_col.is_none()
+        || new_row.unwrap() >= table.len()
+        || new_col.unwrap() >= table[row].len()
+    {
         return true;
     }
 
     backtrack_visible(
         table,
+        visibility_table,
         started_row,
         started_col,
         new_row.unwrap(),
@@ -99,6 +106,8 @@ fn backtrack_scenic(
 
 pub fn part_one(input: &str) -> Option<u32> {
     let (_, table) = parse_input(input).unwrap();
+    let mut visibility_table: Vec<Vec<(bool, Option<&Direction>)>> =
+        vec![vec![(false, None); table[0].len()]; table.len()];
 
     let directions = vec![
         Direction::Down,
@@ -111,7 +120,8 @@ pub fn part_one(input: &str) -> Option<u32> {
     for row in 0..table.len() {
         for col in 0..table[row].len() {
             for direction in directions.iter() {
-                if backtrack_visible(&table, row, col, row, col, direction) {
+                if backtrack_visible(&table, &visibility_table, row, col, row, col, direction) {
+                    visibility_table[row][col] = (true, Some(direction));
                     res += 1;
                     break;
                 }
