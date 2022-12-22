@@ -19,5 +19,4 @@ target/
 /src/inputs
 !/src/inputs/.keep
 
-*/examples/*
 puzzle.md
